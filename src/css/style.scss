@@ -1,5 +1,6 @@
 /* Font Family */
 $font-proximanova: "ProximaNova";
+$icons-marriotticon: "MarriottIcons";
 $base-font-family: $font-proximanova, "Calibri", Arial, "Helvetica", Helvetica, sans-serif;
 
 /* Colors */ 
@@ -18,6 +19,12 @@ html {
     font-family: $font-proximanova;
     src: url("fonts/proxima-nova-all/proxima-nova-regular-webfont.eot");
     src: url("fonts/proxima-nova-all/proxima-nova-regular-webfont.eot?#iefix") format('embedded-opentype'), url("fonts/proxima-nova-all/proxima-nova-regular-webfont.woff") format('woff'), url("fonts/proxima-nova-all/proxima-nova-regular-webfont.ttf") format('truetype'), url("fonts/proxima-nova-all/proxima-nova-regular-webfont.svg") format('svg');
+}
+
+@font-face {
+    font-family: $icons-marriotticon;
+    src: url("fonts/proxima-nova-all/marriott-icons.eot");
+    src: url("fonts/proxima-nova-all/marriott-icons.eot?#iefix") format('embedded-opentype'), url("fonts/proxima-nova-all/marriott-icons.woff") format('woff'), url("fonts/proxima-nova-all/marriott-icons.ttf") format('truetype'), url("fonts/proxima-nova-all/marriott-icons.svg") format('svg');
 }
 
 body {
@@ -59,22 +66,32 @@ body {
             transition: all 0.25s ease-in-out;
         }
     }
+
+    .button {
+        outline: none;
+    }
 }
 
 .m-navigation-blue {
     background-color: $blue;
 
     a {
+        font-size: 1.25rem;
         font-weight: bold;
         color: $white;
     }
 
     ul {
         display: inline-block;
+
+        .active {
+            background-color: $background-color-navitem-hover;
+            background-position: bottom center;
+        }
     }
 
     li {
-        width: 10.5rem;
+        width: 9.25rem;
         transition: all 0.25s ease-in-out;
 
         &:hover {
@@ -82,7 +99,38 @@ body {
             background-position: bottom center;
         }
     }
+
+    .m-navigation-blue-selected {
+        color: $white;
+        display: block;
+        text-align: center;
+
+        li {
+            color: $white;
+
+            &:hover {
+                background-color: $blue;
+                cursor: pointer;
+            }
+        }
+
+        .t-icon-dropdown {
+            font-size: 1rem;
+        }
+    }
+
+    .m-navigation-blue-active {
+        display: block;
+        text-align: center;
+
+        li {
+            display: block;
+            font-size: 1.25rem;
+            width: 100%;
+        }
+    }
 }
+
 
 .m-navigation-grey {
     background-color: $extra-light-grey;
@@ -94,7 +142,23 @@ body {
         li {
             display: inline-table;
             text-align: center;
-            padding: 1.5rem 1.25rem;
+            padding: 0 1.25rem;
+
+            &:hover, &.highlighted {
+                a{
+                    border-bottom-color: inherit;
+                    outline: none;
+                }
+            }
+        }
+
+        a {
+            padding: 1.5rem 0;
+            border-bottom: 0.3125rem solid transparent;
+        }
+
+        .active {
+            border-bottom-color: inherit;
         }
     }
 
@@ -103,16 +167,42 @@ body {
         right: 0;
         position: absolute;
         display: block;
-        top: 4.125rem;
+        top: 4.465rem;
 
         li {
             margin: 0 1.25rem;
-            padding: 1.5rem 1.25rem;
+            padding: 0 1.25rem;
             display: table;
+        }
+
+        a {
+            padding: 1.5rem 0;
+        }
+
+        &.drop-down-close{
+            top: -999px;
         }
     }
 
      .m-navigation-control {
         float: right;   
+        padding: 1.5rem 1.25rem;
     }
+}
+
+/* Icons */
+
+[class*="t-icon-"]::before {
+    font-family: MarriottIcons;
+    display: inline-block;
+}
+
+.t-icon-navigation-close::before {
+    content: "\e021";
+    transform: rotate(45deg);
+}
+
+.t-icon-arrow-down::before {
+    content: "\e023";
+    transform: rotate(90deg);
 }

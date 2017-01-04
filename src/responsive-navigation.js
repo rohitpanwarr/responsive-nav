@@ -95,7 +95,7 @@
         classesObj = {};
 
       $.each(classList.split(' '), function(i, currClass) {
-        var c = customClass.prefix + '-' + currClass.toLowerCase();
+        var c = currClass.toLowerCase();
         classesObj[currClass.toLowerCase()] = c;
       });
 
@@ -173,11 +173,11 @@
       /* Create static dom to be added on initialise*/
       outerWrapper = $('<div/>', { 'class': _this.classes[_this.options.theme], 'tabindex': -1 , 'role': 'navigation' , 'aria-expanded': 'false' }),
       itemsWrapper = $('<div/>',   { 'class': _this.classes.items, 'tabindex': -1 }),
-      childList = $('<ul/>', { 'class': 'm-navigation-grey-dropdown' }),
+      childList = $('<ul/>', { 'class': 'm-navigation-grey-dropdown drop-down-close' }),
       label = $('<span/>',  { 'class': _this.classes.label}),
       button = $('<div/>',   { 'class': _this.classes.button, 'tabindex': 0 }),
       childListWrap = $('<li/>', { 'class': 'm-navigation-control m-navigation-open' }),
-      icon = $('<b/>', {'class': 't-icon-dropdown'});
+      icon = $('<b/>', {'class': 't-icon-arrow-down'});
 
       /* Add plugin scope reference to dom objects */
       _this.elements = {
@@ -206,7 +206,7 @@
 
        _this.$element.append(itemsWrapper);
 
-      _this.options.buttonWidth = _this.elements.childListWrap.outerWidth();
+      _this.options.buttonWidth = _this.elements.childListWrap.outerWidth() + 10;
       _this.elements.childListWrap.removeClass('m-navigation-open').addClass('m-navigation-close');
 
       /* Set total items height for auto scroll purpose. */
@@ -483,10 +483,12 @@
 
       if(_this.state.opened) {
         _this.elements.outerWrapper.addClass(_this.classes.open);
-        _this.elements.icon.removeClass('t-icon-dropdown').addClass('t-icon-navigation-close');
+        _this.elements.icon.removeClass('t-icon-arrow-down').addClass('t-icon-navigation-close');
+        _this.elements.list.removeClass('drop-down-close');
       } else {
         _this.elements.outerWrapper.removeClass(_this.classes.open);
-        _this.elements.icon.removeClass('t-icon-navigation-close').addClass('t-icon-dropdown');
+        _this.elements.icon.removeClass('t-icon-navigation-close').addClass('t-icon-arrow-down');
+        _this.elements.list.addClass('drop-down-close');
       }
     },
 
@@ -574,7 +576,7 @@
         }
 
         // Select highlighted item on enter.
-        if(isEnter && idx !== -1 && _this.$li.eq(idx).is(':focus')) { 
+        if(isEnter && idx !== -1 && (_this.$li.eq(idx).is(':focus') || _this.$li.eq(idx).hasClass('highlighted'))) { 
           _this.select(idx);
           _this.close();
           return;

@@ -1,0 +1,118 @@
+/* Font Family */
+$font-proximanova: "ProximaNova";
+$base-font-family: $font-proximanova, "Calibri", Arial, "Helvetica", Helvetica, sans-serif;
+
+/* Colors */ 
+$white: #fff;
+$black: #1c1c1c;
+$blue: #0079d4;
+$extra-light-grey: #f4f4f4;
+$background-color-navitem-hover: rgba(28, 28, 28, 0.25);
+
+/******************************************************************/
+html {
+    font-size: 16px;
+}
+
+@font-face {
+    font-family: $font-proximanova;
+    src: url("fonts/proxima-nova-all/proxima-nova-regular-webfont.eot");
+    src: url("fonts/proxima-nova-all/proxima-nova-regular-webfont.eot?#iefix") format('embedded-opentype'), url("fonts/proxima-nova-all/proxima-nova-regular-webfont.woff") format('woff'), url("fonts/proxima-nova-all/proxima-nova-regular-webfont.ttf") format('truetype'), url("fonts/proxima-nova-all/proxima-nova-regular-webfont.svg") format('svg');
+}
+
+body {
+    background-color: $white;
+    color: $black;
+    font-family: $base-font-family;
+}
+
+.m-navigation {
+    a {
+        display: block;
+        font-size: 1rem;
+        font-weight: normal;
+        color: $black;
+        text-decoration: none;
+    }
+
+    ul {
+        list-style: none;
+        padding: 0;
+
+        .m-navigation-open {
+            display: inline-block;
+        }
+
+        .m-navigation-close {
+            display: none;
+        }
+    }
+
+    li {
+        display: inline-table;
+        padding: 1.5rem 0;
+        text-align: center;
+        text-decoration: none;
+
+        a {
+            display: block;
+            transition: all 0.25s ease-in-out;
+        }
+    }
+}
+
+.m-navigation-blue {
+    background-color: $blue;
+
+    a {
+        font-weight: bold;
+        color: $white;
+    }
+
+    ul {
+        display: inline-block;
+    }
+
+    li {
+        width: 10.5rem;
+        transition: all 0.25s ease-in-out;
+
+        &:hover {
+            background-color: $background-color-navitem-hover;
+            background-position: bottom center;
+        }
+    }
+}
+
+.m-navigation-grey {
+    background-color: $extra-light-grey;
+
+    ul {
+        padding: 0;
+        width: initial;
+
+        li {
+            display: inline-table;
+            text-align: center;
+            padding: 1.5rem 1.25rem;
+        }
+    }
+
+    .m-navigation-grey-dropdown {
+        background-color: $extra-light-grey;
+        right: 0;
+        position: absolute;
+        display: block;
+        top: 4.125rem;
+
+        li {
+            margin: 0 1.25rem;
+            padding: 1.5rem 1.25rem;
+            display: table;
+        }
+    }
+
+     .m-navigation-control {
+        float: right;   
+    }
+}

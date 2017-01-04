@@ -176,7 +176,7 @@
       childList = $('<ul/>', { 'class': 'm-navigation-grey-dropdown' }),
       label = $('<span/>',  { 'class': _this.classes.label}),
       button = $('<div/>',   { 'class': _this.classes.button, 'tabindex': 0 }),
-      childListWrap = $('<li/>', { 'class': 'l-margin-left m-navigation-control m-navigation-close' }),
+      childListWrap = $('<li/>', { 'class': 'm-navigation-control m-navigation-open' }),
       icon = $('<b/>', {'class': 't-icon-dropdown'});
 
       /* Add plugin scope reference to dom objects */
@@ -188,7 +188,7 @@
         icon            : icon,
         childListWrap   : childListWrap,
         itemsWrapper    : itemsWrapper.append(childList),
-        outerWrapper    : outerWrapper.append(button,label,itemsWrapper),
+        outerWrapper    : outerWrapper.append(button,label),
       };
 
       /* Initialise width values and array constructs to be used for processing */
@@ -200,15 +200,19 @@
 
       _this.childListItems = [];
 
-      _this.options.buttonWidth = _this.elements.button.outerWidth();
+       _this.elements.srcElement.append(
+        _this.elements.childListWrap.append(
+          _this.elements.outerWrapper));
+
+       _this.$element.append(itemsWrapper);
+
+      _this.options.buttonWidth = _this.elements.childListWrap.outerWidth();
+      _this.elements.childListWrap.removeClass('m-navigation-open').addClass('m-navigation-close');
 
       /* Set total items height for auto scroll purpose. */
       _this.itemsHeight = _this.elements.srcElement.find('li:first-child').outerHeight();
 
-      /* Create structure dom for the drop down in the container */
-      _this.elements.srcElement.append(
-        _this.elements.childListWrap.append(
-          _this.elements.outerWrapper));
+      /* Create structure dom for the drop down in the container */  
 
       _this.render();
       _this.bindEvents();

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel="stylesheet" type="text/css" href="../build/css/style.css">
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+</head>
+
+<body>
+  <section>
+    <nav id="sc2" class="m-navigation m-navigation-grey"
+      data-module='hws'
+      data-show-label='false'>
+      <ul>
+        <li><a href="#" title="Logo">Logo</a></li>
+        <li><a href="#" title="Overview">Overview</a></li>
+        <li><a href="#" title="Activity">Activity</a></li>
+        <li><a href="#" title="My Trips">My Trips</a></li>
+        <li><a href="#" title="Favourites">Favourites</a></li>
+        <li><a href="#" title="Promotions">Promotions</a></li>
+        <li><a href="#" title="Profile">Profile</a></li>
+        <li><a href="#" title="Favourites">Favourites1</a></li>
+        <li><a href="#" title="Promotions">Promotions1</a></li>
+        <li class="resnav-selected"><a href="#" title="Profile">Profile1</a></li>
+      </ul>
+    </nav>
+  </section>
+    <script type="text/javascript" src="../build/responsive-navigation.js"></script>
+    <script type="text/javascript">
+      /**
+       * Initialize global widget on dom ready
+       */
+      $(function() {
+          // responsive navigation menu
+          $(".m-navigation").responsiveNav();
+      });
+    </script>
+</body>
+
+</html>

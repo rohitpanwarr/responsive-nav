@@ -39,13 +39,13 @@
   var responsiveNav = function(element, opts) {
     var _this = this;
 
-    _this.element = element;
+    _this.elements = element;
     _this.$element = $(element);
 
     _this.state = {
       opened         : false,
       selectedIdx    : -1,
-      highlightedIdx : 0,
+      highlightedIdx : -1,
       dropDownInitialised: 0,
     };
 
@@ -61,7 +61,7 @@
        * @param  {string} str - The camelCased string.
        * @return {string}       The string transformed to dash-case.
        */
-      toDash: function(str) {
+      addDash: function(str) {
         return str.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
       },
 
@@ -80,7 +80,7 @@
           func.apply(elm, args);
         }
 
-        $(elm).trigger(pluginName + '-' + this.toDash(fn), args);
+        $(elm).trigger(pluginName + '-' + this.addDash(fn), args);
       }
     },
 
@@ -103,7 +103,12 @@
 
       return classesObj;
     },
- 
+    
+    /**
+     * Initialise the sum of width of all list items used for comparing to container width 
+     * 
+     * @return {void}
+     */
     setListItemWidth: function() {
       var listWidth = 0;
 
@@ -113,25 +118,36 @@
 
       return listWidth;
     },
-
+    /**
+     * Paints the drop down dom using the child and parent list. 
+     * The container is emptied and contents refilled on each invocation.
+     * 
+     * @return {void}
+     */
     paintDropDown: function() {
       var _this = this;
       _this.elements.srcElement.empty().append($(_this.parentListItems),_this.elements.childListWrap);
 
       if(_this.childListItems.length > 0) {
         _this.elements.list.append($(_this.childListItems));
-       _this.state.selectedIdx = $('li.dropDown').find('.'+this.classes.selected).index() || -1;
+       _this.state.selectedIdx = $('.m-navigation-control').find('.'+this.classes.selected).index() || -1;
        // list items
         _this.$li = _this.elements.list.find('li');
       } else {
-        _this.state.selectedIdx = -1;
-        _this.state.dropDownInitialised = 0;
+        _this.resetState();
+        _this.updateAttributes();
       }
+      /* Rebind button and other events. */
+      _this.bindEvents();
     },
 
-    /*
-    *
-    */
+    /**
+     * Plugin initialisation method. Initialises plugin specific variables.
+     * Binds elemet events and calls first invocation render methods.
+     * 
+     * @param  {Object} opts Option overrides passed during initialisation call
+     * @return {void}
+     */
     init: function(opts) {
       var _this = this,
         outerWrapper,
@@ -141,38 +157,41 @@
         icon,
         label,
         childList,
-        childListWrap,
-        moduleType = _this.$element.data('module');
-
-      // attribute module
-      classList = classList + ' ' + moduleType;
+        childListWrap;
 
       // Set options
       _this.options = $.extend(true, {}, $.fn[pluginName].defaults, _this.options, opts);
 
       _this.utils.triggerCustomEvent('BeforeInit', _this);
 
+      // adding dropdown theme to classlist.
+      classList = classList + ' ' + _this.options.theme;
+
       // Get classes
       _this.classes = _this.getClassNames();
 
-      outerWrapper = $('<div/>', { 'class': _this.classes[moduleType], 'tabindex': -1 , 'role': 'navigation' , 'aria-expanded': 'false' }),
+      /* Create static dom to be added on initialise*/
+      outerWrapper = $('<div/>', { 'class': _this.classes[_this.options.theme], 'tabindex': -1 , 'role': 'navigation' , 'aria-expanded': 'false' }),
       itemsWrapper = $('<div/>',   { 'class': _this.classes.items, 'tabindex': -1 }),
-      childList = $('<ul/>'),
+      childList = $('<ul/>', { 'class': 'm-navigation-grey-dropdown' }),
       label = $('<span/>',  { 'class': _this.classes.label}),
       button = $('<div/>',   { 'class': _this.classes.button, 'tabindex': 0 }),
-      childListWrap = $('<li/>', { 'class': 'dropDown' }),
-      icon = $('<b/>', {'class': 'icon'});
+      childListWrap = $('<li/>', { 'class': 'l-margin-left m-navigation-control m-navigation-close' }),
+      icon = $('<b/>', {'class': 't-icon-dropdown'});
 
+      /* Add plugin scope reference to dom objects */
       _this.elements = {
         srcElement      : _this.$element.children('ul'),
         list            : childList,
         label           : label,
         button          : button.append(icon),
+        icon            : icon,
         childListWrap   : childListWrap,
         itemsWrapper    : itemsWrapper.append(childList),
         outerWrapper    : outerWrapper.append(button,label,itemsWrapper),
       };
 
+      /* Initialise width values and array constructs to be used for processing */
       _this.srcElementWidth = _this.elements.srcElement.outerWidth();
 
       _this.parentListItems = _this.elements.srcElement.find('li').toArray();
@@ -181,9 +200,12 @@
 
       _this.childListItems = [];
 
-      // Set total items height for auto scroll purpose.
+      _this.options.buttonWidth = _this.elements.button.outerWidth();
+
+      /* Set total items height for auto scroll purpose. */
       _this.itemsHeight = _this.elements.srcElement.find('li:first-child').outerHeight();
 
+      /* Create structure dom for the drop down in the container */
       _this.elements.srcElement.append(
         _this.elements.childListWrap.append(
           _this.elements.outerWrapper));
@@ -193,79 +215,96 @@
 
     },
 
-    /** Generate dropdown navigation */
-    render: function() {
+    /**
+     * Creates array of items to be shown in nav and in drop donw based on current screen width
+     * @return {void} 
+     */
+    render: function(prodType) {
       var _this = this,
         listWrapper = _this.elements.srcElement,
         prevSrcWidth = _this.srcElementWidth,
         newSrcWidth = listWrapper.outerWidth(),
         lastItem, firstItem;
-
-      if(prevSrcWidth >= newSrcWidth) {
-        // screen width increased.
-        if (_this.listItemsWidth > newSrcWidth - _this.options.buttonWidth) {
-          while(_this.listItemsWidth > newSrcWidth - _this.options.buttonWidth) {
-            lastItem = _this.parentListItems.pop();
-            _this.listItemsWidth -= $(lastItem).outerWidth();
-            _this.childListItems.unshift(lastItem);
+      if(_this.options.breakPoint){
+        if($win.outerWidth() <= _this.options.breakPoint){
+          while(_this.parentListItems.length > 0){
+            _this.paintDropDown();
+            _this.state.dropDownInitialised = 1;
+            _this.updateAttributes(); 
           }
-          _this.paintDropDown();
-          _this.state.dropDownInitialised = 1;
         }
-      } else {
-        // screen width decreased.
-        if(_this.state.dropDownInitialised == 1) {
-          firstItem = _this.childListItems[0];
-          while( _this.listItemsWidth + $(firstItem).outerWidth() + _this.options.buttonWidth < newSrcWidth) {
-            _this.listItemsWidth += $(firstItem).outerWidth();
-            firstItem = _this.childListItems.shift();
-            _this.parentListItems.push(firstItem);
-            if($(firstItem).length == 0) break;
+        else if($win.outerWidth() > _this.options.breakPoint && _this.state.dropDownInitialised === 1){
+          while(_this.childListItems.length > 0){
+            _this.parentListItems.push(_this.parentListItems.shift());
+            _this.paintDropDown();
+            _this.resetState();
+            _this.updateAttributes(); 
           }
-          _this.paintDropDown(); 
+        }
+      }
+      else{
+        if(prevSrcWidth >= newSrcWidth) {
+          
+          if (_this.listItemsWidth > newSrcWidth - _this.options.buttonWidth) {
+            /* Pop elements out of the nav till there is enough space to put rest of the items and button */
+            while(_this.listItemsWidth > newSrcWidth - _this.options.buttonWidth) {
+              lastItem = _this.parentListItems.pop();
+              _this.listItemsWidth -= $(lastItem).outerWidth();
+              _this.childListItems.unshift(lastItem);
+            }
+            _this.paintDropDown();
+            _this.state.dropDownInitialised = 1;
+            _this.updateAttributes();
+          }
+        } else {
+          if(_this.state.dropDownInitialised == 1) {
+            firstItem = _this.childListItems[0];
+            /* Pop items from the drop down and push to main nav */
+            while( _this.listItemsWidth + $(firstItem).outerWidth() + _this.options.buttonWidth < newSrcWidth) {
+              _this.listItemsWidth += $(firstItem).outerWidth();
+              firstItem = _this.childListItems.shift();
+              _this.parentListItems.push(firstItem);
+              if($(firstItem).length == 0) break;
+            }
+            _this.paintDropDown(); 
+          }
         }
       }
       _this.srcElementWidth = newSrcWidth;
-
     },
 
     /**
-     * Bind events on the elements
+     * Bind events on the nav bar
      * @return {Void}
      */
     bindEvents: function() {
       var _this = this;
 
-      $win.on('resize' + eventNamespaceSuffix, _this.render.bind(_this));
+      $win.off(eventNamespaceSuffix).on('resize' + eventNamespaceSuffix, _this.render.bind(_this));
 
       // list items
       _this.$li = _this.elements.list.find('li');
 
       // Dropdown focus events
-      _this.elements.button.on({
+      _this.elements.button.off().on({
         click: function(e) {
-          // toggle open state
-          _this.state.opened ? _this.close() : _this.open(e);
-        },
-        focusin: function(e) {
-          if(_this.options.openOnFocus) {
-            _this.open(e);
+          if(_this.state.dropDownInitialised) {
+            // toggle open state
+            _this.state.opened ? _this.close() : _this.open(e);
           }
         }
       });
 
-      // Handle mouse events.
-      _this.$li.on({
-        // Close dropdown on click of list item.
-        click: function(e) {
-          var itemIndex = $(this).index();
-          _this.select(itemIndex);
-          return false;
-        },
-        focusin: function(e) {
-          var itemIndex = $(this).index();
-          _this.highlight(itemIndex);
-        }
+      // Handle menulist item events.
+      _this.elements.list.on('click' + eventNamespaceSuffix, 'li', function(e) {
+        var itemIndex = $(this).index();
+        _this.select(itemIndex);
+        return false;
+      });
+      _this.elements.list.on('focusin' + eventNamespaceSuffix, 'li', function(e) {
+        var itemIndex = $(this).index();
+
+        _this.highlight(e, itemIndex);
       });
       _this.bindKeyDownEvent();
     },
@@ -278,7 +317,7 @@
       var _this = this;
 
       // Handle key events.
-      $doc.on('keydown' + eventNamespaceSuffix, $.proxy(_this.keyHandler, _this));
+      $doc.off(eventNamespaceSuffix).on('keydown' + eventNamespaceSuffix, $.proxy(_this.keyHandler, _this));
     },
 
     /**
@@ -354,7 +393,7 @@
      * Highlight option
      * @param {number} index - Index of the options that will be highlighted
      */
-    highlight: function(index) {
+    highlight: function(event, index) {
       var _this = this;
 
       // Parameter index is required
@@ -370,6 +409,10 @@
         .removeClass(_this.classes.highlighted)
         .eq(_this.state.highlightedIdx = index)
         .addClass(_this.classes.highlighted);
+
+      if(event.type === 'keydown') {
+        _this.$li.eq(_this.state.highlightedIdx).find('a').focus(); // set focus on link
+      }
 
       _this.autoScrollItemList(index);
 
@@ -407,9 +450,20 @@
 
     },
 
+    /**
+     * Update dropdown elements attributes on open and close state.
+     * @return {void}
+     */
     updateAttributes: function() {
 
       var _this = this;
+
+      if(_this.state.dropDownInitialised) {
+        _this.elements.childListWrap.removeClass('m-navigation-close').addClass('m-navigation-open');
+      } else {
+        _this.elements.childListWrap.removeClass('m-navigation-open').addClass('m-navigation-close');
+        return;
+      }
 
       // outer wrapper of dropdown
       _this.elements.outerWrapper.attr({
@@ -420,13 +474,22 @@
       // remove already highlighted item in the list when dropdown is closed.
       if(!_this.state.opened) {
         _this.$li.removeClass(_this.classes.highlighted);
-        _this.classes.highlighted = 0;
+        _this.state.highlightedIdx = -1;
       }
 
-      _this.state.opened ? _this.elements.outerWrapper.addClass(_this.classes.open) : _this.elements.outerWrapper.removeClass(_this.classes.open);
+      if(_this.state.opened) {
+        _this.elements.outerWrapper.addClass(_this.classes.open);
+        _this.elements.icon.removeClass('t-icon-dropdown').addClass('t-icon-navigation-close');
+      } else {
+        _this.elements.outerWrapper.removeClass(_this.classes.open);
+        _this.elements.icon.removeClass('t-icon-navigation-close').addClass('t-icon-dropdown');
+      }
     },
 
-    /** Close the dropdown box */
+    /**
+     * Close the dropdown box.
+     * @return {void}
+     */
     close: function() {
       var _this = this;
 
@@ -437,6 +500,21 @@
       _this.updateAttributes();
 
       _this.utils.triggerCustomEvent('Close', _this);
+    },
+
+    /**
+     * Reset to initial state on dropdown empty.
+     * @return {void}
+     */
+    resetState: function() {
+      var _this = this;
+
+      _this.state = {
+        opened         : false,
+        selectedIdx    : -1,
+        highlightedIdx : -1,
+        dropDownInitialised: 0,
+      };
     },
 
     /**
@@ -475,29 +553,52 @@
           }
 
           if ( isPrevKey ) {
-            goToItem = _this.state.highlightedIdx > 0 ? _this.state.highlightedIdx-- : --totalItems;
+            goToItem = _this.state.highlightedIdx > 0 ? --_this.state.highlightedIdx : --totalItems;
           }
 
           if ( isNextKey ) {
             goToItem = _this.state.highlightedIdx === (totalItems-1) ? 0 : ++_this.state.highlightedIdx;
           }
-          _this.highlight(goToItem);
+          _this.highlight(e, goToItem);
+          return;
+        }
+
+        // Toggle Dropdown on button enter press.
+        if(_this.elements.button.is(':focus') && isEnter) {
+          _this.close();
+          return;
         }
 
         // Select highlighted item on enter.
-        if(isEnter) { 
+        if(isEnter && idx !== -1 && _this.$li.eq(idx).is(':focus')) { 
           _this.select(idx);
           _this.close();
+          return;
+        }
+
+        // Highlight item on tab.
+        if(isTab && idx !== -1) {
+          //_this.$li.eq(idx).focus();
+          if(idx === (_this.$li.length - 1) && _this.options.allowWrap)  {
+            idx = 0; // wrap to first item.
+            _this.$li.eq(idx).find('a').focus();
+            e.preventDefault();
+          } else {
+            _this.highlight(e, idx);
+          }
+          return;
         }
 
         // Close dropdown.
         if(isEscape) {
           _this.close();
+          return;
         }
       } else {
         // check if dropdown button is on focus. If yes, then open dropdown.
-        if(_this.elements.button.is(':focus') && (isTab || isEnter)) {
+        if(_this.elements.button.is(':focus') && isEnter) {
           _this.open();
+          return;
         }
       }
 
@@ -525,24 +626,19 @@
    * @type {object}
    */
   $.fn[pluginName].defaults = {
-    openOnFocus          : false,
-    openOnHover          : false,
     allowWrap            : true,
+    breakPoint           : null,           // Integer value where complete dropdown to be shown
     showLabel            : false,
-    buttonWidth          : 60,
+    theme                : 'grey',         // Possbile values: grey / blue 
     keys                 : {
       previous : [37, 38],                 // Left / Up
       next     : [39, 40],                 // Right / Down
-      select   : [9, 13, 27],              // Tab / Enter / Escape
       enter    : [13],                     // Enter
       tab      : [9],                      // Tab
-      escape   : [27],                      // Space
-      open     : [13, 32, 37, 38, 39, 40], // Enter / Space / Left / Up / Right / Down
-      close    : [9, 27]                   // Tab / Escape
+      escape   : [27]                      // Space
     },
     customClass          : {
-      prefix: 'resnav',
-      camelCase: false
+      prefix: 'resnav'
     },
   };
 

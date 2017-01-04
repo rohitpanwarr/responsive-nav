@@ -2,7 +2,7 @@
 
 #jQuery Responsive Navigation
 
-jQuery Responsive Navigation is a jQuery plugin designed to help at stylizing and to make responsive menu bar nav. The plugin also has various features like 
+jQuery Responsive Navigation is a jQuery plugin designed to help at stylizing and to make responsive menu bar. The plugin also has various features like 
 
 * Keyboard navigation (Up/Down/Left/Right/Tab/Enter/Esc)
 * Easily customizable

@@ -9,4 +9,4 @@ jQuery Responsive Navigation is a jQuery plugin designed to help at stylizing an
 * Pretty lightweight
 * Doesn't rely on external libraries (besides jQuery)
 
-###[Demo](http://lcdsantos.github.io/jQuery-Selectric/)
+###[Demo](https://github.com/rohitpanwarr/responsive-nav/blob/master/example/demo.html)

@@ -1,4 +1,4 @@
-[![npm](https://img.shields.io/npm/v/selectric.svg)](https://www.npmjs.com/package/responsive-navigation)
+[![npm](https://img.shields.io/badge/npm-v1.0.1-brightgreen.svg)](https://www.npmjs.com/package/responsive-menu)
 
 #jQuery Responsive Navigation
 

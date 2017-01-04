@@ -1,6 +1,6 @@
 {
-  "name": "responsive-nav",
-  "version": "1.0.0",
+  "name": "responsive-menu",
+  "version": "1.0.1",
   "description": "A Jquery plugin to create responsive navigation menu",
   "main": "src/responsive-nav.js",
   "scripts": {

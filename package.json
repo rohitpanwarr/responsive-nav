@@ -1,0 +1,16 @@
+{
+  "name": "responsive-nav",
+  "version": "1.0.0",
+  "description": "A Jquery plugin to create responsive navigation menu",
+  "main": "src/responsive-nav.js",
+  "scripts": {
+    "build": "gulp build",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Rohit P.",
+  "license": "ISC",
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "jquery": "^3.1.1"
+  }
+}

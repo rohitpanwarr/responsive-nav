@@ -9,6 +9,11 @@
   },
   "author": "Rohit P.",
   "license": "ISC",
+  "homepage": "https://github.com/rohitpanwarr/responsive-nav",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rohitpanwarr/responsive-nav"
+  },
   "devDependencies": {
     "gulp": "^3.9.1",
     "gulp-clean": "^0.3.2",
